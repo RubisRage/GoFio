@@ -1,5 +1,5 @@
 from stone import Stone
-from exceptions import SuicideException
+from exceptions import GoRuleException as GoEx
 
 EMPTY = 0
 BLACK = 1
@@ -8,7 +8,45 @@ WHITE = 2
 board  = [[0 for _ in range(0, 19)] for _ in range(0, 19)]
 
 class GameController:
-    pass
+    
+    def __init__(self):
+        self.turn = BLACK
+        self.last_board_state = deepcopy(board)
+        self.black = TeamController(BLACK)
+        self.white = TeamController(WHITE, self.black)
+        self.black.other = self.white
+
+
+    def throw(self, x, y):
+        throw = Stone(x,y)
+        check_error(throw)
+        last_board_state = deepcopy(board)
+        __get_player().process_throw(throw)
+        self.black.has_passed = self.white.has_passed = False
+        self.turn = BLACK if self.turn == WHITE else WHITE
+
+
+    def pass_turn(self):
+        get_player().has_passed = True
+
+
+    def ended(self):
+        return self.black.has_passed and self.white.has_passed
+
+
+    def check_error(self,throw):
+        if board[throw.x][throw.y] != EMPTY:
+            raise GoEx(GoEx.OCCUPIED_EXCEPTION)
+        
+        temp = deepcopy(board)
+        temp[throw.x][throw.y] = self.turn
+
+        if self.last_board_state == temp:
+            raise GoEx(GoEx.KO_EXCEPTION)
+
+
+    def __get_player():
+        return self.black if self.turn == BLACK else self.white
 
 
 class TeamController:
@@ -44,7 +82,7 @@ class TeamController:
         if temp.process_liberties() == 0:
             del temp
             board[stone.x][stone.y] = EMPTY
-            raise SuicideException()
+            raise GoEx(GoEx.SUICIDE_EXCEPTION)
 
         for old_groups in ally_tangent:
             self.groups.remove(old_groups)

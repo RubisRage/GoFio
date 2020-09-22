@@ -1,6 +1,6 @@
 import unittest
 from stone import Stone
-from exceptions import SuicideException
+from exceptions import GoRuleException as GoEx
 from data_module import TeamController as t
 from data_module import BLACK
 from data_module import WHITE
@@ -136,8 +136,9 @@ class TeamController(unittest.TestCase):
         self.test_board[1][18] = BLACK
 
         #Corner group suicide attempt
-        with self.assertRaises(SuicideException):
+        with self.assertRaises(GoEx) as contex:
             self.white.process_throw(Stone(0, 18))
+        self.assertEqual(contex.exception.error_code, GoEx.SUICIDE_EXCEPTION)
         self.assertEqual(data_module.board, self.test_board)
         self.assertEqual(len(self.black.groups), 2)
         self.assertEqual(len(self.white.groups), 0)
@@ -155,8 +156,9 @@ class TeamController(unittest.TestCase):
         self.test_board[0][1] = BLACK
 
         #Suicide attempt
-        with self.assertRaises(SuicideException):
+        with self.assertRaises(GoEx) as context:
             self.white.process_throw(Stone(1,1))
+        self.assertEqual(contex.exception.error_code, GoEx.SUICIDE_EXCEPTION)
         self.assertEqual(data_module.board, self.test_board)
         self.assertEqual(len(self.black.groups), 6)
         self.assertEqual(len(self.white.groups), 0)
@@ -184,8 +186,9 @@ class TeamController(unittest.TestCase):
         self.test_board[18][1] = BLACK
 
         #Compound group suicide attempt
-        with self.assertRaises(SuicideException):
+        with self.assertRaises(GoEx) as context:
             self.black.process_throw(Stone(18,2))
+        self.assertEqual(contex.exception.error_code, GoEx.SUICIDE_EXCEPTION)
         self.assertEqual(data_module.board, self.test_board)
         self.assertEqual(len(self.black.groups), 7)
         self.assertEqual(len(self.white.groups), 2)
@@ -267,20 +270,6 @@ class TeamController(unittest.TestCase):
         self.assertEqual(data_module.board, self.test_board)
         self.assertEqual(len(self.black.groups), 8)
         self.assertEqual(len(self.white.groups), 7)
-
-
-
-
-
-
-
-
-def print_m(matrix):
-    print("\n")
-    for x in matrix:
-        for y in x:
-            print(y, end=' ')
-        print()
 
 
 if __name__ == "__main__":
