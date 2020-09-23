@@ -87,7 +87,6 @@ class TeamController:
         for old_groups in ally_tangent:
             self.groups.remove(old_groups)
 
-        board[stone.x][stone.y] == self.team
         self.groups.append(temp)
 
     
