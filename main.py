@@ -1,20 +1,19 @@
 from exceptions import GoRuleException
-import GameController as gc
-import Point as p
+from data_module import GameController
 import os
 
 crossValue = ["-", "B", "W"]
-g = gc.GameController()
+g = GameController()
 
 
 def main():
     
-    print("/pass to pass the turn.")
-    print("x y coords to throw.")
+    print("p to pass the turn, e to exit.")
+    print("x,y (x y) coords to throw.")
 
     while True:
-        #os.system("clear")
-        print(f"{g.get_player()} plays")
+        os.system("clear")
+        print(f"{g.player_str()} plays")
         print_board()
 
         if (s := input())[0] == 'p' or s == 'e':
@@ -22,7 +21,7 @@ def main():
         else:
             try:
                 coords = s.split(' ')
-                g.process_throw(p.Point(int(coords[0]), int(coords[1])))
+                g.throw(int(coords[0]), int(coords[1]))
             except GoRuleException as e:
                 print(str(e))
  
@@ -30,21 +29,17 @@ def main():
 def process_command(command):
         if command == "p":
             g.pass_turn()
-            exit() if g.end_game() else None
+            exit() if g.ended() else None
         elif command == "e":
             exit()
 
 
 def print_board():
     board = g.get_board()
-    
-    rows_num = iter(range(0,19))
 
     for row in board:
-        s = (row_num:=str(next(rows_num))) + ("  " if len(row_num) == 1 else " ")
-        print(f"{s}", end='')
-        for x in row:
-            print(f"{crossValue[x]} ", end='')
+        for value in row:
+            print(crossValue[value], end = " ")
         print()
 
 

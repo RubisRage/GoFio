@@ -1,5 +1,7 @@
+import copy
 from stone import Stone
 from exceptions import GoRuleException as GoEx
+
 
 EMPTY = 0
 BLACK = 1
@@ -10,43 +12,42 @@ board  = [[0 for _ in range(0, 19)] for _ in range(0, 19)]
 class GameController:
     
     def __init__(self):
-        self.turn = BLACK
-        self.last_board_state = deepcopy(board)
+        self.current_turn = BLACK
         self.black = TeamController(BLACK)
         self.white = TeamController(WHITE, self.black)
         self.black.other = self.white
 
 
     def throw(self, x, y):
+
         throw = Stone(x,y)
-        check_error(throw)
-        last_board_state = deepcopy(board)
-        __get_player().process_throw(throw)
+        if board[throw.x][throw.y] != EMPTY:
+            raise GoEx(GoEx.OCCUPIED_EXCEPTION)
+        #last_board_state = copy.deepcopy(board)
+        self.__get_player().process_throw(throw)
         self.black.has_passed = self.white.has_passed = False
-        self.turn = BLACK if self.turn == WHITE else WHITE
+        self.current_turn = BLACK if self.current_turn == WHITE else WHITE
+
+    
+    def player_str(self):
+        return "black" if self.current_turn == BLACK else "white"
+
+    
+    def get_board(self):
+        return board
 
 
     def pass_turn(self):
-        get_player().has_passed = True
+        self.__get_player().has_passed = True
+        self.current_turn = BLACK if self.current_turn == WHITE else WHITE
 
 
     def ended(self):
         return self.black.has_passed and self.white.has_passed
 
 
-    def check_error(self,throw):
-        if board[throw.x][throw.y] != EMPTY:
-            raise GoEx(GoEx.OCCUPIED_EXCEPTION)
-        
-        temp = deepcopy(board)
-        temp[throw.x][throw.y] = self.turn
-
-        if self.last_board_state == temp:
-            raise GoEx(GoEx.KO_EXCEPTION)
-
-
-    def __get_player():
-        return self.black if self.turn == BLACK else self.white
+    def __get_player(self):
+        return self.black if self.current_turn == BLACK else self.white
 
 
 class TeamController:
@@ -55,6 +56,7 @@ class TeamController:
         self.team = team
         self.other = other
         self.groups = list()
+        self.last_board_state = None
         self.has_passed = False
 
 
@@ -79,6 +81,10 @@ class TeamController:
         else:
             temp = self.create_compound_group(ally_tangent, stone)
 
+        if self.last_board_state == board:
+            del temp
+            self.handle_ko_exception(stone, enem_tangent)
+
         if temp.process_liberties() == 0:
             del temp
             board[stone.x][stone.y] = EMPTY
@@ -87,9 +93,23 @@ class TeamController:
         for old_groups in ally_tangent:
             self.groups.remove(old_groups)
 
+        self.last_board_state = copy.deepcopy(board)
         self.groups.append(temp)
 
+
+    def __repr__(self):
+        return "BLACK" if self.team == BLACK else "WHITE"
     
+    def handle_ko_exception(self,stone, enem_tangent):
+        board[stone.x][stone.y] = EMPTY
+        for enem_group in enem_tangent:
+            if enem_group not in self.other.groups:
+                enem_group.process_liberties()
+                enem_group.print_stones()
+                self.groups.append(enem_group)
+
+        raise GoEx(GoEx.KO_EXCEPTION)
+
     def create_compound_group(self, groups, stone):
         stones = list()
         
@@ -144,6 +164,10 @@ class TeamController:
                 #print(f"other liberties: {other.liberties}")
                 return self.team == other.team and self.stones == other.stones and self.liberties == other.liberties
             return False
+
+        def print_stones(self):
+            for s in self.stones:
+                board[s.x][s.y] = self.team
 
         def process_liberties(self):
             

@@ -62,7 +62,7 @@ class GroupTests(unittest.TestCase):
 
 
 
-class TeamController(unittest.TestCase):
+class TeamControllerTests(unittest.TestCase):
     
     def setUp(self):
         data_module.board =  [[0 for _ in range(0, 19)] for _ in range(0, 19)]
@@ -271,6 +271,72 @@ class TeamController(unittest.TestCase):
         self.assertEqual(len(self.black.groups), 8)
         self.assertEqual(len(self.white.groups), 7)
 
+from data_module import GameController
+
+class GameControllerTests(unittest.TestCase):
+
+    def setUp(self):
+        self.game = GameController()
+        data_module.board = [[0 for _ in range(0,19)] for _ in range(0,19)]
+
+    def test_pass_turn(self):
+        
+        self.game.pass_turn()
+        self.game.throw(0,0)
+        self.assertTrue(not self.game.ended())
+        
+        self.game.pass_turn()
+        self.game.pass_turn()
+        self.assertTrue(self.game.ended())
+
+    def test_occupied_throw(self):
+
+        self.game.throw(0,0)
+        with self.assertRaises(GoEx) as context:
+            self.game.throw(0,0)
+        self.assertEqual(context.exception.error_code, GoEx.OCCUPIED_EXCEPTION)
+
+    def test_ko_throw(self):
+        test_board = [[0 for _ in range(0,19)] for _ in range(0,19)]
+
+        test_board[0][0] = BLACK
+        test_board[1][1] = BLACK
+        test_board[2][0] = BLACK
+        test_board[0][1] = WHITE
+        
+        self.game.throw(2,0)
+        self.game.throw(1,0)
+        self.game.throw(1,1)
+        self.game.throw(0,1)
+        self.game.throw(0,0)
+
+        with self.assertRaises(GoEx) as context:
+            self.game.throw(1,0)
+        self.assertEqual(data_module.board, test_board)
+        self.assertEqual(context.exception.error_code, GoEx.KO_EXCEPTION)
+
+        test_board[2][3] = WHITE
+        test_board[1][4] = WHITE
+        test_board[2][5] = WHITE
+        test_board[3][4] = WHITE
+        test_board[3][3] = BLACK
+        test_board[3][5] = BLACK
+        test_board[4][4] = BLACK
+
+        self.game.throw(2,3) #w
+        self.game.throw(3,3)
+        self.game.throw(1,4) #w
+        self.game.throw(4,4)
+        self.game.throw(2,5) #w
+        self.game.throw(3,5)
+        self.game.pass_turn() #w
+        self.game.throw(2,4)
+        self.game.throw(3,4) #w
+
+        with self.assertRaises(GoEx) as context:
+            self.game.throw(2,4)
+        self.assertEqual(data_module.board, test_board)
+        self.assertEqual(context.exception.error_code, GoEx.KO_EXCEPTION)
 
 if __name__ == "__main__":
     unittest.main()
