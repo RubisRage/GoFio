@@ -4,7 +4,7 @@ from backend.exceptions import GoRuleException as GoEx
 from backend.data_module import TeamController as t
 from backend.data_module import BLACK
 from backend.data_module import WHITE
-import backend.data_module as data_module
+import backend.data_module
 
 class GroupTests(unittest.TestCase):
 
@@ -271,7 +271,7 @@ class TeamControllerTests(unittest.TestCase):
         self.assertEqual(len(self.black.groups), 8)
         self.assertEqual(len(self.white.groups), 7)
 
-from backend.data_module import GameController
+from data_module import GameController
 
 class GameControllerTests(unittest.TestCase):
 
