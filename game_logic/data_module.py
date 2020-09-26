@@ -1,6 +1,6 @@
 import copy
-from stone import Stone
-from exceptions import GoRuleException as GoEx
+from game_logic.stone import Stone
+from game_logic.exceptions import GoRuleException as GoEx
 
 
 EMPTY = 0
@@ -23,13 +23,12 @@ class GameController:
         throw = Stone(x,y)
         if board[throw.x][throw.y] != EMPTY:
             raise GoEx(GoEx.OCCUPIED_EXCEPTION)
-        #last_board_state = copy.deepcopy(board)
         self.__get_player().process_throw(throw)
         self.black.has_passed = self.white.has_passed = False
         self.current_turn = BLACK if self.current_turn == WHITE else WHITE
 
     
-    def player_str(self):
+    def get_player_str(self):
         return "black" if self.current_turn == BLACK else "white"
 
     
@@ -157,13 +156,9 @@ class TeamController:
 
 
         def __eq__(self, other):
-            if isinstance(other, TeamController.Group):
-                #print(f"\n\nself stones: {self.stones}")
-                #print(f"self liberties: {self.liberties}")
-                #print(f"other stones: {other.stones}")
-                #print(f"other liberties: {other.liberties}")
-                return self.team == other.team and self.stones == other.stones and self.liberties == other.liberties
-            return False
+            return (isinstance(other, TeamController.Group) and
+                self.team == other.team and self.stones == other.stones 
+                and self.liberties == other.liberties)
 
         def print_stones(self):
             for s in self.stones:

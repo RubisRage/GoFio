@@ -1,5 +1,5 @@
-from exceptions import GoRuleException
-from data_module import GameController
+from backend.exceptions import GoRuleException
+from backend.data_module import GameController
 import os
 
 crossValue = ["-", "B", "W"]
@@ -8,22 +8,29 @@ g = GameController()
 
 def main():
     
+
     print("p to pass the turn, e to exit.")
     print("x,y (x y) coords to throw.")
+    err_str = ""
 
     while True:
         os.system("clear")
-        print(f"{g.player_str()} plays")
+        print(f"{g.get_player_str()} plays")
+        print(err_str)
+        err_str = ""
         print_board()
 
-        if (s := input())[0] == 'p' or s == 'e':
+        s = input()
+        if s == 'p' or s == 'e':
             process_command(s)
         else:
             try:
                 coords = s.split(' ')
                 g.throw(int(coords[0]), int(coords[1]))
             except GoRuleException as e:
-                print(str(e))
+                err_str = str(e)
+            except ValueError:
+                err_str = "Couldn't understand, would you try again?"
  
 
 def process_command(command):

@@ -1,10 +1,10 @@
 import unittest
-from backend.stone import Stone
-from backend.exceptions import GoRuleException as GoEx
-from backend.data_module import TeamController as t
-from backend.data_module import BLACK
-from backend.data_module import WHITE
-import backend.data_module as data_module
+from game_logic.stone import Stone
+from game_logic.exceptions import GoRuleException as GoEx
+from game_logic.data_module import TeamController as t
+from game_logic.data_module import BLACK
+from game_logic.data_module import WHITE
+import game_logic.data_module as data_module
 
 class GroupTests(unittest.TestCase):
 
@@ -271,7 +271,7 @@ class TeamControllerTests(unittest.TestCase):
         self.assertEqual(len(self.black.groups), 8)
         self.assertEqual(len(self.white.groups), 7)
 
-from backend.data_module import GameController
+from game_logic.data_module import GameController
 
 class GameControllerTests(unittest.TestCase):
 
