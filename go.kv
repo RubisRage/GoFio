@@ -1,0 +1,35 @@
+#:kivy 1.10.1
+#:import w kivy.core.window.Window
+
+<Board>:
+    #:set canvas_y w.height-(85/100*w.width)-w.width*10/100 
+    size_hint_x: 0.9
+    size_hint_y: 90/100*w.width/w.height
+    x: w.width*5/100
+    y: canvas_y
+    canvas:
+        Color:
+            rgba: 230/255, 115/255, 0, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<GoGame>:
+    canvas:
+        Color:
+            rgba: 1,1,1,1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    FloatLayout:
+        size:w.size
+        pos:0,0
+        Board:
+            id: board
+            
+        Button:
+            text: "Pass turn"
+            size_hint_x: 0.5
+            size_hint_y: 0.1
+            x: w.width/2-w.width/4
+            center_y: canvas_y/2
