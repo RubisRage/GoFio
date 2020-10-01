@@ -20,7 +20,7 @@ end_flag = False
 class Board(Widget):
 
     def on_touch_down(self,touch):
-        if self.collide_point(*touch.pos) and end_flag:
+        if self.collide_point(*touch.pos) and not end_flag:
             x = round((touch.pos[0]-self.origin_x)/self.step,0)
             y = round((touch.pos[1]-self.origin_y)/self.step,0)
             try:
